@@ -173,15 +173,7 @@ async function main(): Promise<void> {
 
     results.push(result);
 
-    const icon =
-      result.type === "TEXT" ? "✅" :
-      result.type === "IMAGE" ? "🖼️" :
-      result.type === "MIXED" ? "🔀" :
-      "❌";
-
-    console.log(
-      `${icon} [${result.type}] ${filename}`
-    );
+    console.log(`[${result.type}] ${filename}`);
 
     console.log(
       `   Pages : ${result.pageCount}`
