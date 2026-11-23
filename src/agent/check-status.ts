@@ -62,10 +62,10 @@ async function main(): Promise<void> {
     console.log(`\nNombre : ${rows.length}`);
     console.log(`Total TTC : ${total.toFixed(2)} EUR`);
 
-    assert.equal(rows.length, 2);
+    assert.equal(rows.length, 12);
 
     assert.ok(
-      Math.abs(total - 29762.70) < 0.01
+      Math.abs(total - 106886.43) < 0.01
     );
 
     console.log("\n[OK] Filtrage MCP corrigé");

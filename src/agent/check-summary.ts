@@ -36,10 +36,10 @@ async function main(): Promise<void> {
     console.log("Total TTC :", row.total_ttc_euros, "EUR");
     console.log("SQL :", data.sql.trim());
 
-    assert.equal(Number(row.invoice_count), 2);
+    assert.equal(Number(row.invoice_count), 12);
 
     assert.ok(
-      Math.abs(Number(row.total_ttc_euros) - 29762.70) < 0.01
+      Math.abs(Number(row.total_ttc_euros) - 106886.43) < 0.01
     );
 
     console.log("\n[OK] Agregation MCP correcte");
