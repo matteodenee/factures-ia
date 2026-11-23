@@ -8,7 +8,11 @@
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "s3:list": "tsx src/ingestion/list.ts",
+    "s3:download": "tsx src/ingestion/download.ts",
+    "s3:download:all": "tsx src/ingestion/download.ts --all",
+    "pdf:analyze": "tsx src/pdf/analyze.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +20,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",
     "dotenv": "^18.0.10",
+    "pdfjs-dist": "^6.5.438",
     "zod": "^4.6.7"
   },
   "devDependencies": {
