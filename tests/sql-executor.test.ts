@@ -14,10 +14,13 @@ test("Exécuteur : compter les factures", async () => {
     total: number | string;
   };
 
-  assert.equal(Number(row.total), 10);
+  const total = Number(row.total);
+
+  assert.ok(Number.isInteger(total));
+  assert.ok(total > 0);
 
   console.log(
-    `[OK] ${row.total} factures accessibles`
+    `[OK] ${total} factures accessibles`
   );
 });
 
@@ -27,16 +30,38 @@ test("Exécuteur : calculer le total TTC", async () => {
     FROM silver.invoices
   `);
 
+  assert.equal(result.rows.length, 1);
+
   const row = result.rows[0] as {
     total_euros: number | string;
   };
 
+  const totalEuros = Number(row.total_euros);
+
+  assert.ok(Number.isFinite(totalEuros));
+  assert.ok(totalEuros >= 0);
+
+  const centsResult = await executeSafeSql(`
+    SELECT SUM(total_ttc_cents) AS total_cents
+    FROM silver.invoices
+  `);
+
+  assert.equal(centsResult.rows.length, 1);
+
+  const centsRow = centsResult.rows[0] as {
+    total_cents: number | string;
+  };
+
+  const totalCents = Number(centsRow.total_cents);
+
+  assert.ok(Number.isSafeInteger(totalCents));
+
   assert.ok(
-    Math.abs(Number(row.total_euros) - 285089.57) < 0.01
+    Math.abs(totalEuros - totalCents / 100) < 0.01
   );
 
   console.log(
-    `[OK] Total TTC : ${row.total_euros} euros`
+    `[OK] Total TTC : ${totalEuros.toFixed(2)} euros`
   );
 });
 

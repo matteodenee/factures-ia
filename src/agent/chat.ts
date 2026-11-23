@@ -6,6 +6,10 @@ import { appendFile, mkdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import { connectMcp } from "./mcp-client.js";
+import {
+  reliableAnswer,
+  type InvoiceFilter
+} from "./reliable.js";
 
 type Message = {
   role: "system" | "user" | "assistant" | "tool";
@@ -85,7 +89,8 @@ async function trace(
 
 async function askLlm(
   messages: Message[],
-  tools: unknown[]
+  tools: unknown[],
+  toolChoice: "auto" | "required" = "auto"
 ): Promise<NonNullable<LlmResponse["choices"]>[number]["message"]> {
   if (!API_URL || !MODEL) {
     throw new Error(
@@ -105,7 +110,7 @@ async function askLlm(
       model: MODEL,
       messages,
       tools,
-      tool_choice: "auto",
+      tool_choice: toolChoice,
       temperature: 0
     }),
     signal: AbortSignal.timeout(120000)
@@ -158,6 +163,8 @@ async function main(): Promise<void> {
     content: SYSTEM_PROMPT
   }];
 
+  let lastInvoiceFilter: InvoiceFilter | null = null;
+
   try {
     const { tools: mcpTools } = await client.listTools();
 
@@ -179,7 +186,21 @@ async function main(): Promise<void> {
     console.log("Commande de sortie : quitter");
 
     while (true) {
-      const question = (await rl.question("\nVous > ")).trim();
+      let question: string;
+
+      try {
+        question = (await rl.question("\nVous > ")).trim();
+      } catch (error) {
+        const code = (
+          error as { code?: string }
+        )?.code;
+
+        if (code === "ERR_USE_AFTER_CLOSE") {
+          break;
+        }
+
+        throw error;
+      }
 
       if (!question) {
         continue;
@@ -200,10 +221,46 @@ async function main(): Promise<void> {
       });
 
       try {
+        const reliable = await reliableAnswer(
+          client,
+          question,
+          lastInvoiceFilter
+        );
+
+        if (reliable) {
+          lastInvoiceFilter = reliable.filter;
+
+          console.log("[MCP] " + reliable.tool);
+          console.log("\nAgent > " + reliable.answer);
+
+          messages.push({
+            role: "assistant",
+            content: reliable.answer
+          });
+
+          await trace(sessionId, {
+            type: "tool_call",
+            tool: reliable.tool,
+            arguments: JSON.stringify(reliable.arguments),
+            result: reliable.result
+          });
+
+          await trace(sessionId, {
+            type: "answer",
+            answer: reliable.answer
+          });
+
+          continue;
+        }
+
         let completed = false;
 
         for (let step = 0; step < 6; step++) {
-          const answer = await askLlm(messages, tools);
+          const answer = await askLlm(
+            messages,
+            tools,
+            step === 0 ? "required" : "auto"
+          );
 
           messages.push({
             role: "assistant",
@@ -216,6 +273,16 @@ async function main(): Promise<void> {
           const calls = answer.tool_calls || [];
 
           if (calls.length === 0) {
+            if (step === 0) {
+              console.error(
+                "[BLOCKED] Réponse sans consultation MCP"
+              );
+
+              messages.splice(1);
+              completed = true;
+              break;
+            }
+
             const finalAnswer =
               answer.content?.trim() ||
               "Je n'ai pas pu produire de réponse.";
