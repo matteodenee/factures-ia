@@ -23,3 +23,9 @@ data/manifest.json
 data/analysis/
 data/ocr/
 data/warehouse/
+
+# Traces locales de l'agent IA
+data/agent/
+
+# Sauvegardes temporaires
+*.backup

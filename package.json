@@ -17,7 +17,14 @@
     "bronze:ingest": "tsx src/bronze/ingest.ts",
     "silver:build": "tsx src/silver/build.ts",
     "warehouse:build": "tsx src/warehouse/build.ts",
-    "warehouse:query": "tsx src/warehouse/query.ts"
+    "warehouse:query": "tsx src/warehouse/query.ts",
+    "ocr:prepare": "tsx src/evaluation/prepare.ts",
+    "ocr:evaluate": "tsx src/evaluation/run.ts",
+    "mcp:start": "tsx src/mcp/server.ts",
+    "agent:test": "tsx src/agent/test.ts",
+    "agent:chat": "tsx src/agent/chat.ts",
+    "agent:check-status": "tsx src/agent/check-status.ts",
+    "agent:check-summary": "tsx src/agent/check-summary.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,8 +32,11 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",
     "@duckdb/node-api": "^2.0.1-r.1",
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@modelcontextprotocol/server": "^2.4.0",
     "cheerio": "^1.2.0",
     "dotenv": "^18.0.10",
+    "node-sql-parser": "^5.4.0",
     "pdfjs-dist": "^6.5.438",
     "zod": "^4.6.7"
   },
