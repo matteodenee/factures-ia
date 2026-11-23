@@ -12,7 +12,9 @@
     "s3:list": "tsx src/ingestion/list.ts",
     "s3:download": "tsx src/ingestion/download.ts",
     "s3:download:all": "tsx src/ingestion/download.ts --all",
-    "pdf:analyze": "tsx src/pdf/analyze.ts"
+    "pdf:analyze": "tsx src/pdf/analyze.ts",
+    "ocr:test": "tsx src/ocr/test.ts",
+    "bronze:ingest": "tsx src/bronze/ingest.ts"
   },
   "keywords": [],
   "author": "",
