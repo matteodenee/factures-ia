@@ -21,3 +21,5 @@ data/evaluation/*
 .DS_Store
 data/manifest.json
 data/analysis/
+data/ocr/
+data/warehouse/
